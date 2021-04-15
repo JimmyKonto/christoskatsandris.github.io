@@ -1,3 +1,7 @@
+/* AppName: FindTheNeighbours 
+   Author: Christos Katsandris (https://www.linkedin.com/in/christos-katsandris/)
+   Location: https://github.com/christoskatsandris/FindTheNeighbours */
+
 // Stopwatch code source: https://stackoverflow.com/questions/20318822/how-to-create-a-stopwatch-using-javascript (with some modifications)
 
 // Variable declarations
