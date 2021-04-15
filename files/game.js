@@ -5,6 +5,7 @@
 const allCountries = new Array();
 const allPromises = new Array();
 const allCountriesWithNeighbours = new Array();
+let storageAccessDenied = false;
 let currentGame = null;
 let myCountryFlagElement = null;
 let myCountryNameElement = null;
@@ -13,8 +14,8 @@ let scoreNumberElement = null;
 let neighboursPanelElement = null;
 let nextRoundButton = null;
 let settingsPanelElement = null;
-let helpFieldElement = null;
-let directionsPanelElement = null;
+let hintFieldElement = null;
+let helpPanelElement = null;
 let nextRoundPanelElement = null;
 let highScoreTable = null;
 
@@ -63,7 +64,7 @@ class Round {
         this.foundWrongNeighbours = new Array();
         this.possibleNeighbours = this.choosePossibleNeighbours();
         this.startRound();
-        this.neighboursWithHelp = new Array();
+        this.neighboursWithHint = new Array();
     }
 
     choosePossibleNeighbours() {
@@ -116,10 +117,10 @@ class Round {
                         let nextPercentage = this.foundNeighbours.length / this.country.neighbours.length * 100;
                         updateProgressbar(currentPercentage, nextPercentage);
                         if (currentGame.score >= 10) {
-                            document.querySelector("#help").src = "files/Assets/idea-on.png";
+                            document.querySelector("#hint").src = "files/Assets/idea-on.png";
                         }
-                        if (this.neighboursWithHelp[this.neighboursWithHelp.length - 1] === possibleNeighbour) {
-                            helpFieldElement.innerHTML = "";
+                        if (this.neighboursWithHint[this.neighboursWithHint.length - 1] === possibleNeighbour) {
+                            hintFieldElement.innerHTML = "";
                         }
 
                         if (this.foundNeighbours.length === this.country.neighbours.length) {
@@ -138,7 +139,7 @@ class Round {
                         scoreNumberElement.innerHTML = currentGame.score;
                         this.foundWrongNeighbours.push(possibleNeighbour);
                         if (currentGame.score < 10) {
-                            document.querySelector("#help").src = "files/Assets/idea-off.png";
+                            document.querySelector("#hint").src = "files/Assets/idea-off.png";
                         }
                         if (this.foundWrongNeighbours.length === this.country.neighbours.length) {
                             nextRoundPanelElement.innerHTML = "Κρίμα, σε αυτόν τον γύρο έχασες.";
@@ -179,18 +180,18 @@ class Round {
         nextRoundPanelElement.style.display = "flex";
     }
 
-    getHelp() {
-        if ((helpFieldElement.innerHTML == "") && (currentGame.score >= 10)) { // If there isn't active help and minimum score is achieved
+    getHint() {
+        if ((hintFieldElement.innerHTML == "") && (currentGame.score >= 10)) { // If there isn't active hint and minimum score is achieved
             for (let neighbour of this.country.neighbours) { // then find the first neighbour
                 if (!this.foundNeighbours.includes(neighbour)) { // that is not yet found
                     // and show the first letter of its name
                     currentGame.score -= 10;
                     if (currentGame.score < 10) {
-                        document.querySelector("#help").src = "files/Assets/idea-off.png";
+                        document.querySelector("#hint").src = "files/Assets/idea-off.png";
                     }
                     scoreNumberElement.innerHTML = currentGame.score;
-                    this.neighboursWithHelp.push(neighbour);
-                    helpFieldElement.innerHTML = `Πρώτο γράμμα: ${neighbour.name.charAt(0)}`;
+                    this.neighboursWithHint.push(neighbour);
+                    hintFieldElement.innerHTML = `Πρώτο γράμμα: ${neighbour.name.charAt(0)}`;
                     return; // and stop searching
                 }
             }
@@ -237,17 +238,22 @@ class Game {
 
     end() {
         this.stopwatch.stop();
-        if (this.howManyRounds == 5) {
-            if (this.score > highScoreTable[0] || (this.score == highScoreTable[0] && this.stopwatch.time < highScoreTable[1])) this.setNewHighScore(0);
-        }
-        else if (this.howManyRounds == 10) {
-            if (this.score > highScoreTable[2] || (this.score == highScoreTable[2] && this.stopwatch.time < highScoreTable[3])) this.setNewHighScore(2);
-        }
-        else if (this.howManyRounds == 20) {
-            if (this.score > highScoreTable[4] || (this.score == highScoreTable[4] && this.stopwatch.time < highScoreTable[5])) this.setNewHighScore(4);
-        }
-        else {
-            if (this.score > highScoreTable[6] || (this.score == highScoreTable[6] && this.stopwatch.time < highScoreTable[7])) this.setNewHighScore(6);
+        try {
+            if (this.howManyRounds == 5) {
+                if (this.score > highScoreTable[0] || (this.score == highScoreTable[0] && this.stopwatch.time < highScoreTable[1])) this.setNewHighScore(0);
+            }
+            else if (this.howManyRounds == 10) {
+                if (this.score > highScoreTable[2] || (this.score == highScoreTable[2] && this.stopwatch.time < highScoreTable[3])) this.setNewHighScore(2);
+            }
+            else if (this.howManyRounds == 20) {
+                if (this.score > highScoreTable[4] || (this.score == highScoreTable[4] && this.stopwatch.time < highScoreTable[5])) this.setNewHighScore(4);
+            }
+            else {
+                if (this.score > highScoreTable[6] || (this.score == highScoreTable[6] && this.stopwatch.time < highScoreTable[7])) this.setNewHighScore(6);
+            }
+        } catch (e) {
+            console.log("Storage access is denied. High scores are not logged.");
+            storageAccessDenied = true;
         }
     }
 
@@ -327,8 +333,8 @@ function initiateSettings() {
     scoreNumberElement.innerHTML = "";
     myCountryFlagElement.setAttribute("src", "");
     myCountryNameElement.innerHTML = "";
-    document.querySelector("#help").style.display = "none";
-    document.querySelector("#directions-container").style.marginLeft = "auto";
+    document.querySelector("#hint").style.display = "none";
+    document.querySelector("#help-container").style.marginLeft = "auto";
 }
 
 function startGame() {
@@ -341,10 +347,10 @@ function startGame() {
         currentGame.startNewRound();
         neighboursPanelElement.style.display = "flex";
         settingsPanelElement.style.display = "none";
-        document.querySelector("#help").style.display = "block";
-        document.querySelector("#help").src = "files/Assets/idea-off.png";
-        document.querySelector("#directions-container").style.marginLeft = "10px"
-        helpFieldElement.innerHTML = "";
+        document.querySelector("#hint").style.display = "block";
+        document.querySelector("#hint").src = "files/Assets/idea-off.png";
+        document.querySelector("#help-container").style.marginLeft = "10px"
+        hintFieldElement.innerHTML = "";
         currentGame.stopwatch.start();
     }
 }
@@ -462,6 +468,10 @@ function parse(secs) {
     return `${renderedMinutes}:${renderedSeconds}`;
 }
 
+function hideHighScorePanel() {
+    document.querySelector("#high-scores").style.display = "none";
+}
+
 // Script entry point
 
 countryObjects.forEach(country => {
@@ -476,16 +486,21 @@ document.addEventListener("DOMContentLoaded", () => {
     neighboursPanelElement = document.querySelector("#neighbours-panel");
     nextRoundButton = document.querySelector("#btn-next-round");
     settingsPanelElement = document.querySelector("#settings-panel-container");
-    helpFieldElement = document.querySelector("#help-field");
-    directionsPanelElement = document.querySelector("#directions-panel");
+    hintFieldElement = document.querySelector("#hint-field");
+    helpPanelElement = document.querySelector("#help-panel");
     nextRoundPanelElement = document.querySelector("#next-round-panel");
     highScoreTable = new Array();
 
     Promise.all(allPromises).then((reply) => {
-        getExistingHighScores();
+        try {
+            getExistingHighScores();
+            updateHighScoresPanel();
+        } catch (e) {
+            console.log("Storage access is denied. High scores are not logged.");
+            storageAccessDenied = true;
+            hideHighScorePanel();
+        }
         findNeighbours();
-        updateHighScoresPanel();
-
         // All set
         // Start a new game
 
@@ -520,19 +535,19 @@ document.addEventListener("DOMContentLoaded", () => {
         clearHighScores();
     });
 
-    document.querySelector("#directions").addEventListener("mouseover", () => {
-        if (directionsPanelElement.classList.contains("hidden")) {
-            directionsPanelElement.classList.remove("hidden");
+    document.querySelector("#help").addEventListener("mouseover", () => {
+        if (helpPanelElement.classList.contains("hidden")) {
+            helpPanelElement.classList.remove("hidden");
         }
-        directionsPanelElement.classList.add("visible");
+        helpPanelElement.classList.add("visible");
     });
 
-    document.querySelector("#directions").addEventListener("mouseout", () => {
-        directionsPanelElement.classList.remove("visible");
-        directionsPanelElement.classList.add("hidden");
+    document.querySelector("#help").addEventListener("mouseout", () => {
+        helpPanelElement.classList.remove("visible");
+        helpPanelElement.classList.add("hidden");
     });
 
-    document.querySelector("#help").addEventListener("click", () => {
-        currentGame.round.getHelp();
+    document.querySelector("#hint").addEventListener("click", () => {
+        currentGame.round.getHint();
     });
 });

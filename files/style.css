@@ -45,38 +45,38 @@ body {
     padding-left: 1em;
 }
 
-#help-field {
+#hint-field {
     margin-left: 20px;
     color: white;
 }
 
-#help {
+#hint {
     margin-left: auto;
 }
 
-#directions-container {
+#help-container {
     position: relative;
     margin-left: 10px;
 }
 
-#directions-panel {
+#help-panel {
     visibility: hidden;
     opacity: 0;
 }
 
-#directions-panel.visible {
+#help-panel.visible {
     visibility: visible;
     opacity: 1;
     transition: opacity 0.5s linear;
 }
 
-#directions-panel.hidden {
+#help-panel.hidden {
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s 0.5s, opacity 0.5s linear;
 }
 
-#directions-panel > p {
+#help-panel > p {
     font-size: 0.7em;
 }
 
@@ -408,7 +408,7 @@ body {
 }
 
 @media (min-width: 800px) {
-    #directions-panel {
+    #help-panel {
         background-color: beige;
         width: 30vw;
         height: fit-content;
@@ -420,7 +420,7 @@ body {
         z-index: 10;
     }
 
-    #directions-panel::before {
+    #help-panel::before {
         content: "";
         position: absolute;
         width: 0;
@@ -434,7 +434,7 @@ body {
         z-index: 11;
     }
     
-    #directions-panel::after {
+    #help-panel::after {
         content: "";
         position: absolute;
         width: 0;
@@ -448,7 +448,7 @@ body {
 }
 
 @media (max-width: 800px) {
-    #directions-panel {
+    #help-panel {
         background-color: beige;
         width: 50vw;
         height: fit-content;
@@ -460,7 +460,7 @@ body {
         z-index: 10;
     }
 
-    #directions-panel::before {
+    #help-panel::before {
         content: "";
         position: absolute;
         width: 0;
@@ -473,7 +473,7 @@ body {
         z-index: 11;
     }
     
-    #directions-panel::after {
+    #help-panel::after {
         content: "";
         position: absolute;
         width: 0;
