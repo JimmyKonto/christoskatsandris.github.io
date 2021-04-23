@@ -181,6 +181,7 @@ class Round {
         else {
             nextRoundButton.disabled = false;
         }
+        hintFieldElement.innerHTML = "";
         nextRoundPanelElement.style.display = "flex";
     }
 
